@@ -32,7 +32,6 @@
   <div class="login-box">
     <div class="login-logo">
         <img src="{{asset('gambar')}}/logo-lutim.png" width="60px" title="logo-lutim">
-        <img src="{{asset('gambar')}}/lutim-inspiring.png" width="70px" title="lutim-inspiring">
     </div>
     <div class="login-logo">
       <p><strong>Login User</strong></p>
