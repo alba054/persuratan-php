@@ -514,27 +514,18 @@ class GenerateSuratController extends Controller
     function printBodySuratKematian($dataSurat)
     {
         $pemohon = [
-            "Nama" => $dataSurat->nama_pemohon ?? "-",
-            "NIK" => $dataSurat->nik ?? "-",
-            "No. KK" => $dataSurat->no_kk ?? "-",
-            "Tempat/Tanggal Lahir" => ($dataSurat->tempat_lahir ?? "-") . ", " . date("d-m-Y", strtotime($dataSurat->tgl_lahir ?? "-")),
-            "Jenis Kelamin" => $dataSurat->jenis_kelamin ?? "-",
-            "Kewarganegaraan" => $dataSurat->warga_negara ?? "-",
-            "Agama" => $dataSurat->agama ?? "-",
-            "Status Perkawinan" => $dataSurat->status_kawin ?? "-",
-            "Pekerjaan" => $dataSurat->pekerjaan ?? "-",
-            "Alamat" => $dataSurat->alamat ?? "-",
+            "Nama yang melapor" => $dataSurat->nama_pemohon ?? "-",
+            "Hubungan keluarga" => $dataSurat->hubungan ?? "-",            
         ];
 
         $dataMati = [
-            "Hari/Tanggal" => ($dataSurat->hari_mati ?? "-") . ", " . $this->tglIndo($dataSurat->tgl_mati ?? "-"),
-            "Tempat Kematian" => $dataSurat->tempat_mati ?? "-",
-            "Kecamatan" => $dataSurat->kecamatan ?? "-",
-            "Kabupaten/Kota" => $dataSurat->kabupaten ?? "-",
-            "Provinsi" => $dataSurat->provinsi ?? "-",
-            "Sebab Kematian" => $dataSurat->sebab_mati ?? "-",
-            "Yang Menentukan" => "...........................................",
-            "Keterangan Visum" => "...........................................",
+            "Nama" => ($dataSurat->nama_mayat ?? "-"),
+            "Tempat/Tgl Lahir" => ($dataSurat->tempat_lahir ?? "-") . ", " . date("d-m-Y", strtotime($dataSurat->tgl_lahir ?? "-")),
+            "Jenis Kelamin" => $dataSurat->jenis_kelamin ?? "-",
+            "Agama" => $dataSurat->agama ?? "-",
+            "Status" => $dataSurat->status_kawin ?? "-",
+            "Pekerjaan" => $dataSurat->pekerjaan ?? "-",
+            "Alamat" => $dataSurat->alamat ?? "-",
         ];
 
         $this->fpdf->Ln(4.5);
@@ -551,10 +542,10 @@ class GenerateSuratController extends Controller
         // $this->fpdf->Ln(2);
         // $this->fpdf->Cell(10);
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->MultiCell(0, 6, 'Yang bertanda tangan di bawah ini ' . ($dataSurat->approve_by->jabatan ?? "-") . ' Digital menerangkan dengan sesungguhnya bahwa:', 0, 'J', false);
+        $this->fpdf->MultiCell(0, 6, 'Yang bertanda tangan di bawah ini Lurah Kalabbirang, Kecamatan'. ($dataSurat->kecamatan) .', Kabupaten' .($dataSurat->kabupaten). ' menerangkan bahwa:', 0, 'J', false);
         $this->fpdf->Ln(2);
 
-        foreach ($pemohon as $label => $value) {
+        foreach ($dataMati as $label => $value) {
             if ($label == 'Nama') {
                 $value = strtoupper($value);
                 $this->setLabelValue($label, $value, 'B');
@@ -568,16 +559,23 @@ class GenerateSuratController extends Controller
         // $this->fpdf->Ln(1.5);
         // $this->fpdf->Cell(10);
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(0, 7, 'Telah meninggal dunia pada:', 0, 1, 'L');
+        $this->fpdf->MultiCell(0, 7, 'Yang tersebut namanya diatas adalah benar Penduduk Lingkungan '. ($dataSurat->alamat ?? "-") . ' Kelurahan Kalabbirang, Kec.'. ($dataSurat->kecamatan) .', Kab. ' .($dataSurat->kabupaten). ' yang telah meninggal dunia pada hari  '. ($dataSurat->hari_mati) . ', tanggal ' . ($dataSurat->tgl_mati) . ' pukul ' . ($dataSurat->pkl_mati) . ' Wita karena ' . ($dataSurat->sebab_mati) . ', surat keterangan ini dibuat atas dasar yang sebenarnya:', 0, 'J', false);
+
         $this->fpdf->Ln(1.5);
 
-        foreach ($dataMati as $label => $value) {
-            $this->setLabelValue($label, $value);
-            $this->fpdf->Ln(1.5);
-        }
+        foreach ($pemohon as $label => $value) {
+            if ($label == 'Nama') {
+                $value = strtoupper($value);
+                $this->setLabelValue($label, $value, 'B');
+                $this->fpdf->Ln(1.5);
+            } else {
+                $this->setLabelValue($label, $value);
+                $this->fpdf->Ln(1.5);
+            }
+        }   
 
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(0, 7, 'Demikian Surat Keterangan Kematian ini kami buat untuk dipergunakan seperlunya.', 0, 1, 'L');
+        $this->fpdf->MultiCell(0, 7, 'Demikian Surat Keterangan ini dibuat dan diberikan kepada yang bersangkutan untuk keperluan kelengkapan berkas.', 0, 'J', false);
         // $this->fpdf->Ln(1.5);
     }
 
@@ -588,10 +586,19 @@ class GenerateSuratController extends Controller
             "Nama" => $dataSurat->nama_pemohon ?? "-",
             "Tempat/Tanggal Lahir" => ($dataSurat->tempat_lahir ?? "-") . ", " . date("d-m-Y", strtotime($dataSurat->tgl_lahir ?? "-")),
             "Jenis Kelamin" => $dataSurat->jenis_kelamin ?? "-",
+            "NIK" => $dataSurat->nik ?? "-",
+            "Status" => $dataSurat->status_kawin ?? "-",
             "Agama" => $dataSurat->agama ?? "-",
             "Pekerjaan" => $dataSurat->pekerjaan ?? "-",
             "Alamat" => $dataSurat->alamat ?? "-",
-            "NIK" => $dataSurat->nik ?? "-",
+            
+        ];
+
+        $usaha = [
+            "Bidang Usaha" => $dataSurat->jenis_usaha ?? "-",
+            "Bentuk Usaha" => $dataSurat->bentuk_usaha ?? "-",
+            "Alamat Usaha" => $dataSurat->alamat_usaha ?? "-",
+            "Usaha" => ('Sejak tahun ' . ($dataSurat->tahun_usaha ?? "-") . ' sampai sekarang'),
         ];
 
         $this->fpdf->Ln(9);
@@ -607,7 +614,7 @@ class GenerateSuratController extends Controller
 
         // $this->fpdf->Cell(1);
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->MultiCell(0, 7, 'Yang bertanda tangan di bawah ini menerangkan dengan sesungguhnya bahwa:', 0, 'J', false);
+        $this->fpdf->MultiCell(0, 7, 'Yang bertanda tangan di bawah ini, Kepala Keluraharan Kalabbirang Kecamatan Pattallassang Kab. Takalar menerangkan bahwa:', 0, 'J', false);
         $this->fpdf->Ln(5);
 
         foreach ($pemohon as $label => $value) {
@@ -625,10 +632,22 @@ class GenerateSuratController extends Controller
         $this->fpdf->Ln(3);
         // $this->fpdf->Cell(10);
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->MultiCell(0, 7, 'Bahwa yang bersangkutan di atas adalah benar warga ' . ($dataSurat->alamat ?? "-") . ' yang memiliki usaha ' . strtoupper($dataSurat->jenis_usaha ?? "-") . ' beralamatkan di ' . ($dataSurat->alamat_usaha ?? "-") . ' yang berjalan sejak tahun ' . ($dataSurat->tahun_usaha ?? "-") . ' sampai sekarang.', 0, 'J', false);
+        $this->fpdf->MultiCell(0, 7, 'Benar yang tersebut namanya memiliki / menjalankan Usaha ');
         $this->fpdf->Ln(2);
 
-        $this->fpdf->MultiCell(0, 7, 'Demikian Surat Keterangan Usaha ini diberikan kepada yang bersangkutan untuk digunakan sebagaimana mestinya.', 0, 'J', false, 9);
+        foreach ($usaha as $label => $value) {
+            if ($label == 'Nama') {
+                $value = strtoupper($value);
+                $this->setLabelValue($label, $value, 'B');
+                $this->fpdf->Ln(3);
+            } else {
+                $this->setLabelValue($label, $value);
+                $this->fpdf->Ln(3);
+            }
+        }
+
+        $this->fpdf->SetFont('Times', '', 12);
+        $this->fpdf->MultiCell(0, 7, 'Demikian Surat Keterangan Usaha ini diberikan kepada yang bersangkutan untuk digunakan sebagaimana mestinya.', 0, 'J', false);
         $this->fpdf->Ln(1);
     }
 
@@ -709,19 +728,22 @@ class GenerateSuratController extends Controller
         $pemohon = [
             "Nama" => $dataSurat->nama_pemohon ?? "-",
             "Tempat/Tanggal Lahir" => ($dataSurat->tempat_lahir ?? "-") . ", " . date("d-m-Y", strtotime($dataSurat->tgl_lahir ?? "-")),
-            "NIK" => $dataSurat->nik ?? "-",
             "Jenis Kelamin" => $dataSurat->jenis_kelamin ?? "-",
-            "Status Perkawinan" => $dataSurat->status_kawin ?? "-",
+            "NIK" => $dataSurat->nik ?? "-",
+            "Agama" => $dataSurat->agama ?? "-",
+            "Status" => $dataSurat->status_kawin ?? "-",
             "Kewarganegaraan" => $dataSurat->warga_negara ?? "-",
             "Pekerjaan" => $dataSurat->pekerjaan ?? "-",
             "Alamat" => $dataSurat->alamat ?? "-",
+            "Untuk Keperluan" => $dataSurat->keperluan ?? "-",
         ];
 
         $this->fpdf->Ln(9);
         $this->fpdf->SetFont('Times', 'BU', 12);
         $this->fpdf->Cell(73);
-        $this->fpdf->Cell(1, 5, 'SURAT KETERANGAN', 0, 1, 'C');
-        $this->fpdf->Ln(0.1);
+        $this->fpdf->Cell(1, 5, 'SURAT KETERANGAN BERLAKUAN BAIK', 0, 1, 'C');
+        $this->fpdf->Cell(73);
+        $this->fpdf->Cell(1, 5, 'TIDAK TERLIBAT ORGANISASI TERLARANG', 0, 1, 'C');
 
         $this->fpdf->Cell(73);
         $this->fpdf->SetFont('Times', '', 12);
@@ -730,124 +752,125 @@ class GenerateSuratController extends Controller
 
         // $this->fpdf->Cell(1);
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->MultiCell(0, 7, 'Yang bertanda tangan di bawah ini, ' . ($dataSurat->approve_by->jabatan ?? "-") . ' Kecamatan Wotu Kabupaten Luwu Timur menerangkan bahwa:', 0, 'J', false);
-        $this->fpdf->Ln(5);
+        $this->fpdf->MultiCell(0, 7, 'Yang bertanda tangan di bawah ini, Lurah Kalabbirang, Kecamatan Pattallassang, Kabupaten Takalar denga ini menerangkan bahwa:', 0, 'J', false);
+        $this->fpdf->Ln(4);
 
         foreach ($pemohon as $label => $value) {
             if ($label == 'Nama') {
                 $value = strtoupper($value);
                 $this->setLabelValue($label, $value, 'B');
-                $this->fpdf->Ln(3);
+                $this->fpdf->Ln(1);
             } else {
                 $this->setLabelValue($label, $value);
-                $this->fpdf->Ln(3);
+                $this->fpdf->Ln(1);
             }
         }
 
 
         // $this->fpdf->Cell(10);
         $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->MultiCell(0, 7, 'Nama yang tersebut di atas benar-benar penduduk Desa Digital, Kecamatan Wotu, Kabupaten Luwu Timur yang berdomisili di ' . ($dataSurat->alamat ?? "-") . '. Sepanjang pengamatan kami, oknum tersebut tidak pernah Terpidana.', 0, 'J', false);
+        $this->fpdf->MultiCell(0, 7, 'Oknum tersebut di atas adalah benar-benar penduduk yang berdomisili Lingkungan ' . ($dataSurat->alamat ?? "-") . ', Kelurahan Kalabbirang, Kecamatan Pattallassang, Kabupaten Takalar.', 0, 'J', false);
         $this->fpdf->Ln(3);
 
-        $this->fpdf->MultiCell(0, 7, 'Demikian Surat Keterangan ini diberikan kepada yang bersangkutan untuk digunakan seperlunya.', 0, 'J', false);
-
-
+        $this->fpdf->MultiCell(0, 7, 'Sepanjang sepengetahuan kami serta penyelidikan kami, yang bersangkutan tidak pernah terlibat baik secara langsung maupun tidak langsung dalam suatu organisasi terlarang oleh pemerintah seperti perbuatan kriminal/Kejahatan/G30S/PKI atau semacamnya.', 0, 'J', false);
+        $this->fpdf->Ln(3);
+        
+        $this->fpdf->MultiCell(0, 7, 'Demikian surat keterangan ini diberikan dan untuk dipergunakan sebagaimana mestinya.', 0, 'J', false);
         // $this->fpdf->AddPage('P', 'A4');
         // $this->fpdf->SetMargins(30, 10, 30);
     }
 
     function printBodySuratBaik2($dataSurat)
     {
-        $pemohon = [
-            "Nama" => $dataSurat->nama_pemohon ?? "-",
-            "Tempat/Tanggal Lahir" => ($dataSurat->tempat_lahir ?? "-") . ", " . date("d-m-Y", strtotime($dataSurat->tgl_lahir ?? "-")),
-            "NIK" => $dataSurat->nik ?? "-",
-            "Jenis Kelamin" => $dataSurat->jenis_kelamin ?? "-",
-            "Status Perkawinan" => $dataSurat->status_kawin ?? "-",
-            "Kewarganegaraan" => $dataSurat->warga_negara ?? "-",
-            "Pekerjaan" => $dataSurat->pekerjaan ?? "-",
-            "Alamat" => $dataSurat->alamat ?? "-",
-        ];
+    //     $pemohon = [
+    //         "Nama" => $dataSurat->nama_pemohon ?? "-",
+    //         "Tempat/Tanggal Lahir" => ($dataSurat->tempat_lahir ?? "-") . ", " . date("d-m-Y", strtotime($dataSurat->tgl_lahir ?? "-")),
+    //         "NIK" => $dataSurat->nik ?? "-",
+    //         "Jenis Kelamin" => $dataSurat->jenis_kelamin ?? "-",
+    //         "Status Perkawinan" => $dataSurat->status_kawin ?? "-",
+    //         "Kewarganegaraan" => $dataSurat->warga_negara ?? "-",
+    //         "Pekerjaan" => $dataSurat->pekerjaan ?? "-",
+    //         "Alamat" => $dataSurat->alamat ?? "-",
+    //     ];
 
-        $this->fpdf->Ln(10);
-        $tglIndo = $this->tglIndo($dataSurat->tgl_surat ?? "-");
-        $this->fpdf->Cell(105);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, 'Digital, ' . $tglIndo, 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Ln(10);
+    //     $tglIndo = $this->tglIndo($dataSurat->tgl_surat ?? "-");
+    //     $this->fpdf->Cell(105);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, 'Digital, ' . $tglIndo, 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Ln(2);
-        $this->fpdf->Cell(105);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, 'Kepada', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Ln(2);
+    //     $this->fpdf->Cell(105);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, 'Kepada', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Cell(105);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, 'Yth. Bapak Kapolsek Wotu', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Cell(105);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, 'Yth. Bapak Kapolsek Wotu', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Cell(105);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, 'Di', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Cell(105);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, 'Di', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Cell(105);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, '        Wotu', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Cell(105);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, '        Wotu', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Cell(-10);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, 'Perihal', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Cell(-10);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, 'Perihal', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Ln(-7);
-        $this->fpdf->Cell(8);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, ':', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Ln(-7);
+    //     $this->fpdf->Cell(8);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, ':', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Ln(-7);
-        $this->fpdf->Cell(10);
-        $this->fpdf->SetFont('Times', 'B', 12);
-        $this->fpdf->MultiCell(70, 5, 'Permohonan Surat Keterangan Berkelakuan Baik', 0, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->Ln(-7);
+    //     $this->fpdf->Cell(10);
+    //     $this->fpdf->SetFont('Times', 'B', 12);
+    //     $this->fpdf->MultiCell(70, 5, 'Permohonan Surat Keterangan Berkelakuan Baik', 0, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Ln(5);
-        $this->fpdf->Cell(1, 5, 'Dengan Hormat,', 0, 1, 'L');
-        $this->fpdf->Ln(2);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Ln(5);
+    //     $this->fpdf->Cell(1, 5, 'Dengan Hormat,', 0, 1, 'L');
+    //     $this->fpdf->Ln(2);
 
-        $this->fpdf->Cell(1, 5, 'Yang bertanda tangan dibawah ini:', 0, 1, 'L');
-        $this->fpdf->Ln(5);
+    //     $this->fpdf->Cell(1, 5, 'Yang bertanda tangan dibawah ini:', 0, 1, 'L');
+    //     $this->fpdf->Ln(5);
 
-        foreach ($pemohon as $label => $value) {
-            if ($label == 'Nama') {
-                $value = strtoupper($value);
-                $this->setLabelValue($label, $value, 'B');
-                $this->fpdf->Ln(3);
-            } else {
-                $this->setLabelValue($label, $value);
-                $this->fpdf->Ln(3);
-            }
-        }
+    //     foreach ($pemohon as $label => $value) {
+    //         if ($label == 'Nama') {
+    //             $value = strtoupper($value);
+    //             $this->setLabelValue($label, $value, 'B');
+    //             $this->fpdf->Ln(3);
+    //         } else {
+    //             $this->setLabelValue($label, $value);
+    //             $this->fpdf->Ln(3);
+    //         }
+    //     }
 
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->MultiCell(0, 7, 'Dengan ini bermohon Kepada Bapak kiranya dapat diberikan Surat Keterangan Berkelakuan Baik untuk kelengkapan berkas.', 0, 'J', false);
-        $this->fpdf->Ln(3);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->MultiCell(0, 7, 'Dengan ini bermohon Kepada Bapak kiranya dapat diberikan Surat Keterangan Berkelakuan Baik untuk kelengkapan berkas.', 0, 'J', false);
+    //     $this->fpdf->Ln(3);
 
-        $this->fpdf->MultiCell(0, 7, 'Demikian permohonan saya buat atas bantuan Bapak saya ucapkan terima kasih.', 0, 'J', false);
+    //     $this->fpdf->MultiCell(0, 7, 'Demikian permohonan saya buat atas bantuan Bapak saya ucapkan terima kasih.', 0, 'J', false);
 
-        $this->fpdf->Ln(10);
-        $this->fpdf->Cell(130);
-        $this->fpdf->SetFont('Times', '', 12);
-        $this->fpdf->Cell(1, 5, 'Hormat Saya,', 0, 1, 'C');
-        $this->fpdf->Ln(20);
+    //     $this->fpdf->Ln(10);
+    //     $this->fpdf->Cell(130);
+    //     $this->fpdf->SetFont('Times', '', 12);
+    //     $this->fpdf->Cell(1, 5, 'Hormat Saya,', 0, 1, 'C');
+    //     $this->fpdf->Ln(20);
 
-        $this->fpdf->Cell(130);
-        $this->fpdf->SetFont('Times', 'BU', 12);
-        $this->fpdf->Cell(1, 5, strtoupper($dataSurat->nama_pemohon) ?? "-", 0, 1, 'C');
+    //     $this->fpdf->Cell(130);
+    //     $this->fpdf->SetFont('Times', 'BU', 12);
+    //     $this->fpdf->Cell(1, 5, strtoupper($dataSurat->nama_pemohon) ?? "-", 0, 1, 'C');
     }
 }
